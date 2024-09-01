@@ -98,7 +98,7 @@ class FirefoxAddonsController():
         if(self.addonsActor is None):
             self._setAddonsActor()
 
-        sendMsg(self.soc, {'to': self.addonsActor, 'type': 'installTemporaryAddon', 'addonPath': path})
+        sendMsg(self.soc, {'to': self.addonsActor, 'type': 'installTemporaryAddon', 'addonPath': path, 'openDevTools':'true'})
         resp = rcvMsg(self.soc) # ignore {'from': 'root', 'type': 'addonsChanged'}
         while('addon' not in resp):
             resp = rcvMsg(self.soc)
