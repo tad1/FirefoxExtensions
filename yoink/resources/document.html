@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browser Autoplay - Settings</title>
+    <link href="options.css" rel="stylesheet">
+    <!-- <script type="module" src="settings.js"></script> -->
+    <!-- <script type="module" defer src="ruleset.js"></script> -->
+    <script type="module" src="options.js"></script>
+    <script type="module" src="spotify-auth.js"></script>
+
+</head>
+<body>
+    <section title="spotify-setting" id="spotify-setting">
+        <header>Spotify options</header>
+        <button id="spotify-auth-btn" disabled>Auth</button>
+        <div id="spotify-auth-resp">you are authed</div>
+        <!-- check if spotify is linked -->
+        <!-- select device? -->
+    </section>
+    <section title="rules" id="rules">
+        <span id="hover">?</span> of <span id="hunder">?</span> (<span id="hbuff">?</span>)
+
+        <header>
+                <select name="ruleset-storage" id="ruleset-storage" disabled>
+                    <option value="local" selected>local</option>
+                    <option value="sync">synchonized</option>
+                </select>
+            Ruleset</header>
+        <!-- just copy the vimium option page, but add adaptive white/dark mode -->
+        <form id="rulesetForm">
+
+            After 
+            <input data-setting type="number" style="width: 4ch; text-align: center;" max="800" name="treshold_value" id="treshold_value" value="15">
+            <select data-setting name="treshold_unit" id="treshold_unit" disabled>
+                <option value="seconds" selected>seconds</option>
+                <option value="minutes">minutes</option>
+            </select>
+            <select data-setting name="window_focused" disabled>
+                <option value="true" selected>focused</option>
+                <option value="false">opened</option>
+            </select>
+            over past
+            <input data-setting type="number" style="width: 5ch; text-align: center;" max="800" name="buffer_value" id="buffer_value" value="15">
+            <select data-setting name="buffer_unit" id="buffer_unit" disabled>
+                <option value="seconds" selected>seconds</option>
+                <option value="minutes">minutes</option>
+            </select>
+            on any of those websites:
+            <table>
+                <thead>
+                    <tr>
+                        <th>url regex match</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td><input type="text" name="" id="" disabled value="youtube.com"></td><td><button disabled>remove</button></td></tr>
+                    <tr><td></td><td><button disabled>add</button></td></tr>
+                </tbody>
+            </table>
+            <br>
+            <!-- hrefs -->
+            play: INABAKUMORI
+            <!-- play one of transition: -->
+            <!-- [song/random song from] [id] -->
+            <!-- song seletion -->
+            <!-- and next:
+            [album/playlist/artist] [id]
+            during that, apply
+            [blackout]
+            to target websites
+             -->
+        </form>
+        </section>
+</body>
+</html>

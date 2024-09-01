@@ -1,0 +1,33 @@
+{
+    "author": "tad1",
+    "manifest_version": 2,
+    "version": "1.0",
+    "name": "Yoink",
+    "background": {
+        "scripts": ["./src/background.js"],
+        "persistent": true,
+        "type": "module"
+    },
+    "permissions": [
+        "activeTab"
+    ],
+    "commands": {
+        "yoink-web":{
+            "description": "Yoinks HTML into buffer",
+            "suggested_key": {
+                "default": "Ctrl+Alt+Y"
+            }
+        },
+        "yeet-web":{
+            "description": "Yeets HTML into page, from buffer",
+            "suggested_key": {
+                "default": "Ctrl+Alt+P"
+            }
+        }
+    },
+    "browser_specific_settings": {
+        "gecko": {
+            "id": "yoink.webext@tad1.dev"
+        }
+    }
+}
