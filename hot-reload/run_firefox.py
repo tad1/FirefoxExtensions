@@ -35,7 +35,7 @@ def get_free_tcp_port():
     tcp.close()
     return port
 
-def run_firefox(debugger_port):
+def run_firefox(debugger_port, clear=True):
     try:
         os.mkdir(_profile_name)
     except FileExistsError:
@@ -58,8 +58,9 @@ def run_firefox(debugger_port):
         pass
     except Exception:
         traceback.print_exc(file=sys.stdout)
-    print("clearing!")
-    shutil.rmtree(_profile_name)
+    if clear:
+        print("clearing!")
+        shutil.rmtree(_profile_name)
     sys.exit(0)
 
 if __name__ == "__main__":

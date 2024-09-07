@@ -140,7 +140,7 @@ class WatchdogHandler(FileSystemEventHandler):
         self.addonController.reload(self.path)
         
 
-def main(paths=[os.getcwd()]):
+def main(paths=[os.getcwd()], clear=False):
     port = get_free_tcp_port()
     addonController = FirefoxAddonsController(port, paths=paths)
 
@@ -152,7 +152,7 @@ def main(paths=[os.getcwd()]):
         watchdogs.append(observer)
 
 
-    firefox = Process(target=lambda: run_firefox(port))
+    firefox = Process(target=lambda: run_firefox(port, clear))
     firefox.start()
     addonController.init()
     [observer.start() for observer in watchdogs]
@@ -170,9 +170,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('path', type=str, nargs="*", default=[os.getcwd()])
     parser.add_argument('--log', type=str, required=False, default="WARNING", choices=["DEBUG", "INFO", "WARNING", "WARN", "ERROR", "CRITICAL"])
+    parser.add_argument('-n', action='store_true')
     argcomplete.autocomplete(parser)
     args = parser.parse_args()
 
     log_numeric_level = getattr(logging, args.log)
     logging.basicConfig(level=log_numeric_level)
-    main(paths=args.path)
+    main(paths=args.path, clear=(not args.n))
