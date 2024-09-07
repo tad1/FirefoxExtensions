@@ -1,0 +1,35 @@
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    /* display: none; <- Crashes Chrome on hover */
+    -webkit-appearance: none;
+    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+
+input[type=number] {
+    -moz-appearance:textfield; /* Firefox */
+}
+
+body {
+    font: 14px "DejaVu Sans", "Arial", sans-serif;
+    margin: 0 auto;
+}
+
+header {
+    font-size: 18px;
+    font-weight: normal;
+    border-bottom: 1px solid #eee;
+    padding: 20px 0 15px 0;
+    width: 100%;
+  }
+
+section {
+    width: 540px;
+    margin-left: 35px;
+  }
+
+@media (prefers-color-scheme: dark){
+    html{
+        background-color: #2b2a33;
+        color: white;
+    }
+}

@@ -1,0 +1,14 @@
+== 06.09.2024 - the inital update
+> It's a somehow an organized mess! and it's working! 
+
+I created this extension to test my hypothesis: 
+Can use my YouTube addiction as a trap?  to gain time and intention to work on stuff I care about?
+AKA - can I exploit my weaknesses instead of constant struggle getting rid of them?
+
+
+Enter 1st: I had to manually load and setup the extension (`about:debug`), I was anticipating the sudden
+    burst of music.  It kinda worked.  Futher testing inquired.
+
+I send that to the `mozilla addons` - after 10 hours they force-disabled my extension.
+    I guess something was missing something in the manifest, or it was too much WIP.  Anyway I 
+     have to transfer that via USB stick then.

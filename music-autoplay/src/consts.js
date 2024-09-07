@@ -1,0 +1,1 @@
+export const DEFAULT_TIME_BETWEEN_SAMPLES = 5.0;

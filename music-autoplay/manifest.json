@@ -1,0 +1,31 @@
+{
+    "author": "tad1",
+    "manifest_version": 2,
+    "version": "1.0",
+    "name": "Music Autoplay",
+    "description": "play music based on web activity",
+    "background": {
+        "scripts": ["./src/background.js"],
+        "persistent": true,
+        "type": "module"
+    },
+    "content_scripts": [{
+        "matches": ["https://tad1.dev/browser-autoplay?*","https://tad1.dev/browser-autoplay"],
+        "css": ["./src/options/options.css"],
+        "js": ["./src/options/options.js", "./src/options/inject-settings.js"]
+    }],
+    "permissions": [
+        "tabs",
+        "alarms",
+        "nativeMessaging",
+        "storage",
+        "https://api.spotify.com/*",
+        "https://accounts.spotify.com/api/token"
+    ],
+    "browser_specific_settings": {
+        "gecko": {
+            "id": "music_autoplay@tad1.dev"
+        }
+    },
+    "options_page": "./src/options/options.html"
+}

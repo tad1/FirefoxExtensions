@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browser Autoplay - Settings</title>
+    <link href="options.css" rel="stylesheet">
+    <!-- <script type="module" src="settings.js"></script> -->
+    <!-- <script type="module" defer src="ruleset.js"></script> -->
+    <script type="module" src="options.js" defer></script>
+    <script type="module" src="spotify-auth.js"></script>
+
+</head>
+<body>
+    <section title="spotify-setting" id="spotify-setting">
+        <h2>🏗️ This extension is under the development, only minimal functionality is implemented. 🙉</h2>
+        <h4>For development process info read <a href="/src/changelog.txt">changelog.txt</a></h4>
+        <header>Spotify options</header>
+        <label for="client-id">Client id:</label>
+        <input type="text" name="client-id" id="client-id">
+        <button id="set-client-id">apply</button>
+        <br>
+        <button id="spotify-auth-btn" disabled>Auth</button>
+        <div id="spotify-auth-resp">you are ???</div>
+        <label for="device-select">Target device: </label>
+        <select name="device-select" id="device-select" disabled>
+
+        </select>
+        <!-- check if spotify is linked -->
+        <!-- select device? -->
+    </section>
+    <section title="rules" id="rules">
+        <header>Debug info</header>
+        <span id="hover">?</span> of <span id="hunder">?</span> (<span id="hbuff">?</span>)
+
+        <header>
+
+            Ruleset</header>
+        <label for="ruleset-storage">Synchonization type:</label>
+        <select name="ruleset-storage" id="ruleset-storage" disabled>
+            <option value="local" selected>local</option>
+            <option value="sync">synchonized</option>
+        </select>
+
+            <!-- just copy the vimium option page, but add adaptive white/dark mode -->
+        <form id="rulesetForm">
+
+            After 
+            <input data-setting type="number" style="width: 4ch; text-align: center;" max="800" name="treshold_value" id="treshold_value" value="15">
+            <select data-setting name="treshold_unit" id="treshold_unit" disabled>
+                <option value="seconds" selected>seconds</option>
+                <option value="minutes">minutes</option>
+            </select>
+            <select data-setting name="window_focused" disabled>
+                <option value="true" selected>focused</option>
+                <option value="false">opened</option>
+            </select>
+            over past
+            <input data-setting type="number" style="width: 5ch; text-align: center;" max="800" name="buffer_value" id="buffer_value" value="15">
+            <select data-setting name="buffer_unit" id="buffer_unit" disabled>
+                <option value="seconds" selected>seconds</option>
+                <option value="minutes">minutes</option>
+            </select>
+            on any of those websites:
+            <br>
+            <label for="url-regex">URL match regex:</label>
+            <input type="text" name="url-regex" id="url-regex" value="www\.youtube\.com" style="width: 60%;">
+            <button type="button" id="url-regex-apply">apply</button>
+            <table style="opacity: 40%;">
+                <thead>
+                    <tr>
+                        <th>url regex match</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td><input type="text" name="" id="" disabled value="youtube\.com"></td><td><button disabled>remove</button></td></tr>
+                    <tr><td></td><td><button disabled>add</button></td></tr>
+                </tbody>
+            </table>
+            <br>
+            <br>
+            <br>
+            <!-- hrefs -->
+            <label for="spotify-uri">play:</label>
+            <input type="text" name="spotify-uri" id="spotify-uri" style="width: 80%;">
+            <button type="button" id="spotify-uri-apply">apply</button>
+            <br>
+            <span>example input</span>
+            <ul>
+                <li>spotify:artist:25b7eSZD64Sm8ReHZ1WDc7</li>
+                <li>spotify:album:1Ggqhoj6naPW3Vn1Q0kAa1</li>
+                <li>spotify:track:24SUWisv2lYQiB3bVpE1sn</li>
+            </ul>
+            <div style="font-size: 1em;">(example - )</div>
+            <!-- play one of transition: -->
+            <!-- [song/random song from] [id] -->
+            <!-- song seletion -->
+            <!-- and next:
+            [album/playlist/artist] [id]
+            during that, apply
+            [blackout]
+            to target websites
+             -->
+        </form>
+        </section>
+</body>
+</html>
