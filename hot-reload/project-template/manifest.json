@@ -1,0 +1,12 @@
+{
+    "author": "author",
+    "manifest_version": 2,
+    "version": "1.0",
+    "name": "name",
+    "description": "",
+    "browser_specific_settings": {
+        "gecko": {
+            "id": "ext_name@domain.com"
+        }
+    }
+}
