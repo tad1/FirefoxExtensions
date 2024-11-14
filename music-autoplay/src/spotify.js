@@ -40,8 +40,12 @@ export class Spotify{
         this._redirectUri = redirectUri;
         let res = await browser.storage.local.get('token');
         this._access_info = res.token;
-        console.log(this._access_info)
         await this.regenerate();
+    }
+
+    isClientSetup = () =>{
+        // todo, validate if clientId is correct?
+        return this._clientId !== undefined && this._clientId !== null && this._clientId !== "";
     }
 
     regenerate = async () => {
@@ -65,6 +69,7 @@ export class Spotify{
     }
 
     authorize = async (code) => {
+        //TODO: convert to promise
         const payload = {
             method: 'POST',
             headers: {
@@ -85,7 +90,6 @@ export class Spotify{
             this._access_token = response.access_token
             this._access_info = response;
             this._access_info.expiration_time = Date.now() + response.expires_in * 1000;
-            console.log(this._access_info)
             browser.storage.local.set({'token': this._access_info})
         }
     }

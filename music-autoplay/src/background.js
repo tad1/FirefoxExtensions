@@ -13,7 +13,7 @@ var timeBufferSize = await storageGet("timeBufferSize", 40);
 var timeTreshold = await storageGet("timeTreshold", 30);
 var regex = await storageGet("regex", "www\.youtube\.com")
 var spotify_uri = await storageGet("spotify_uri", "spotify:artist:25b7eSZD64Sm8ReHZ1WDc7")
-var client_id = await storageGet("client_id", "")
+var client_id = await storageGet("client_id", null)
 
 var buffer = []
 var bufferMaxSize = timeBufferSize/timeBetweenSample;
@@ -21,9 +21,8 @@ var triggered = false;
 
 
 const spotify = await new Spotify();
-await spotify.init(client_id, 'https://tad1.dev/browser-autoplay');
-if(spotify.isAuthed()){
-
+if(client_id){
+    await spotify.init(client_id, browser.identity.getRedirectURL());
 }
 
 async function exec(){
@@ -117,7 +116,7 @@ function dispatchSpotify (message){
         case 'setup':
             if(message.client_id){
                 browser.storage.local.set({'client_id':message.client_id});
-                spotify.init(message.client_id, 'https://tad1.dev/browser-autoplay')
+                spotify.init(message.client_id, browser.identity.getRedirectURL())
                 return spotify.regenerate()
             }
 
@@ -125,19 +124,24 @@ function dispatchSpotify (message){
             spotify.regenerate();
             return Promise.resolve("done");
         break;
-        case 'getAuthURL':
-            return Promise.resolve(spotify.getAuthURL())
-        break;
         case 'authorize':
-            if (!message['code']) return Promise.resolve(null);
-            let res = spotify.authorize(message['code'])
-            return res;
+            return browser.identity.launchWebAuthFlow({
+                url: spotify.getAuthURL(),
+                interactive: true
+            }).then(async (redirectUri)=>{
+                let m = redirectUri.match(/[#?](.*)/);
+                let params = new URLSearchParams(m[1].split("#")[0]);
+                let code = params.get("code");
+                return await spotify.authorize(code)
+            });
         break;
         case 'isAuthed':
             return Promise.resolve(spotify.isAuthed());
         break;
+        case 'isClientSetup':
+            return Promise.resolve(spotify.isClientSetup());
+        break;
         case 'dispatch':
-            console.log("dispathch")
             return Promise.resolve(spotify.dispatch(message['method'], message['endpoint'], message['body']))
         break;
     }
@@ -162,7 +166,6 @@ function notify(message, sender) {
 
 
 browser.runtime.onMessage.addListener(notify);
-
 
 browser.runtime.openOptionsPage()
 

@@ -16,14 +16,42 @@
         <h2>🏗️ This extension is under the development, only minimal functionality is implemented. 🙉</h2>
         <h4>For development process info read <a href="/src/changelog.txt">changelog.txt</a></h4>
         <header>Spotify options</header>
-        <label for="client-id">Client id:</label>
-        <input type="text" name="client-id" id="client-id">
-        <button id="set-client-id">apply</button>
-        <br>
-        <button id="spotify-auth-btn" disabled>Auth</button>
-        <div id="spotify-auth-resp">you are ???</div>
-        <label for="device-select">Target device: </label>
-        <select name="device-select" id="device-select" disabled>
+
+        <!-- display this only when client is not correct -->
+        <div id="spotify-client">
+                    <ol>
+            <li>Go to <a href="https://developer.spotify.com/dashboard/applications">Spotify dashboard</a></li>
+            <li>Click `Create an app`</li>
+            <li>Now click `Edit Settings`</li>
+            <li>Add 
+                <code style="display: inline-block;">
+                    <a id="redirect-url">here should be URL</a>
+                </code>
+                 to the Redirect URIs</li>
+            <li>Save</li>
+            <li>Enter Client ID</li>
+        </ol>
+        <table>
+            <tr>
+                <td>
+                    <label for="spotify-client-id">Client Id:</label>
+                </td>
+                <td>
+                    <input type="text" name="spotify-client-id" id="spotify-client-id">
+                </td>
+            </tr>
+        </table>
+
+        <button id="spotify-client-setup">Setup Client</button>
+        </div>
+
+        <!-- display this only when client is correct -->
+        <div id="spotify-auth">
+            <button id="spotify-auth-btn" disabled>Auth</button>
+            <div id="spotify-auth-resp">you are ???</div>
+            <label for="device-select">Target device: </label>
+            <select name="device-select" id="device-select" disabled>
+        </div>
 
         </select>
         <!-- check if spotify is linked -->

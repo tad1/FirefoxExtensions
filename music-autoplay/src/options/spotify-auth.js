@@ -4,19 +4,18 @@ const handleAuthed = ()=>{
     let deviceSelect = document.getElementById("device-select");
     
     browser.runtime.sendMessage({"type":"spotify", "command":"dispatch", "method":"GET", "endpoint":"v1/me/player/devices"}).then( async (v)=>{
+        console.log(v)
         /**@type {Object[]} */
         let devices = v.devices;
 
         let default_device;
         let storaged = await browser.storage.local.get('selected_device');
         let match;
-        console.log(storaged)
         if(storaged && storaged.selected_device){
             match = devices.filter(v => storaged.selected_device.id === v.id || storaged.selected_device.name === v.name)[0];
         }
         let active = devices.filter(v => v.is_active);
         if(match){
-            console.log(match)
             default_device = match
             if(default_device.id !== storaged.selected_device.id){
                 browser.storage.local.set({'selected_device': default_device})
@@ -66,20 +65,17 @@ const handleAuthed = ()=>{
 window.addEventListener('load', async ()=>{
     const isAuthed = await browser.runtime.sendMessage({"type":"spotify", "command":"isAuthed"});
     console.log(isAuthed)
+    const isClientSetup = await browser.runtime.sendMessage({"type":"spotify", "command":"isClientSetup"});
+    console.log(`isClientSetup ${isClientSetup}`)
 
     browser.storage.local.get(['client_id', 'regex', 'spotify_uri']).then(v=>{
-        console.log(v)
         if(v.client_id)
-            document.getElementById('client-id').value = v.client_id;
+            document.getElementById('spotify-client-id').value = v.client_id;
         if(v.regex)
             document.getElementById('url-regex').value = v.regex
         if(v.spotify_uri)
             document.getElementById('spotify-uri').value = v.spotify_uri
 
-    })
-    document.getElementById('set-client-id').addEventListener("click", ()=>{
-        const value = document.getElementById('client-id').value;
-        browser.runtime.sendMessage({"type":"spotify", "command":"setup", "client_id": value});
     })
     document.getElementById('url-regex-apply').addEventListener('click', ()=>{
         const value = document.getElementById('url-regex').value;
@@ -94,21 +90,26 @@ window.addEventListener('load', async ()=>{
         handleAuthed();
         return;
     }
-    const urlParams = new URLSearchParams(window.location.search);
-    let code = urlParams.get('code');
-    urlParams.delete('code');
 
-    if(code){
-        browser.runtime.sendMessage({"type":"spotify", "command":"authorize", "code": code}).then(()=>{
-            window.location.href = browser.runtime.getURL("/src/options/options.html");
-        })
-    } else{
-        document.getElementById("spotify-auth-btn").disabled = false;
-        document.getElementById("spotify-auth-resp").textContent = "you are NOT authed";
-        document.getElementById("spotify-auth-btn").addEventListener('click', async ()=>{
-            const url = await browser.runtime.sendMessage({"type":"spotify", "command":"getAuthURL"});
-            console.log(`the url from backend: ${url}`)
-            window.location.href = url;
-        })
+    if(!isClientSetup){
+        /** @type{HTMLDivElement} */
+        let div = document.getElementById("spotify-auth");
+        div.style.display = "none";
     }
+
+    document.getElementById("spotify-auth-btn").disabled = false;
+
+
+    document.getElementById("spotify-auth-btn").disabled = false;
+    document.getElementById("spotify-auth-resp").textContent = "you are NOT authed";
+    document.getElementById("spotify-auth-btn").addEventListener('click', async ()=>{
+        const result = await browser.runtime.sendMessage({"type":"spotify", "command":"authorize"});
+        window.location.reload()
+    })
+
+    document.getElementById('spotify-client-setup').addEventListener("click", async()=>{
+        const value = document.getElementById('spotify-client-id').value;
+        let res = await browser.runtime.sendMessage({"type":"spotify", "command":"setup", "client_id": value});
+        window.location.reload()
+    })
 })

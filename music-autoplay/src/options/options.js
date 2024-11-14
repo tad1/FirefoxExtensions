@@ -33,5 +33,11 @@ window.addEventListener('load', ()=>{
         hunder.textContent = msg["threshold"]
         hbuff.textContent = msg["bufferSize"]
     })
+
+    /**@type {HTMLAnchorElement} */
+    let redirectURLSpan = document.getElementById("redirect-url")
+    let url = browser.identity.getRedirectURL()
+    redirectURLSpan.innerText = url
+    redirectURLSpan.href = url
 })
 

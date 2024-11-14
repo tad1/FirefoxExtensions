@@ -9,16 +9,12 @@
         "persistent": true,
         "type": "module"
     },
-    "content_scripts": [{
-        "matches": ["https://tad1.dev/browser-autoplay?*","https://tad1.dev/browser-autoplay"],
-        "css": ["./src/options/options.css"],
-        "js": ["./src/options/options.js", "./src/options/inject-settings.js"]
-    }],
     "permissions": [
         "tabs",
         "alarms",
         "nativeMessaging",
         "storage",
+        "identity",
         "https://api.spotify.com/*",
         "https://accounts.spotify.com/api/token"
     ],

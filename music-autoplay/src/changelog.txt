@@ -1,3 +1,11 @@
+== 14.11.2024 - authorization flow update again
+- added instructions on adding Spotify App
+- use identity API for auth & move auth to backend (it's more secure now)
+
+== 12.09.2024 - authorization flow update
+- finally associated Spotify application to this extension.
+    so you no longer need Spotify app to use it
+
 == 06.09.2024 - the inital update
 > It's a somehow an organized mess! and it's working! 
 
