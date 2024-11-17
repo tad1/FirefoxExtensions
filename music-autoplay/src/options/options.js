@@ -14,7 +14,9 @@ window.addEventListener('load', ()=>{
         let buff = rulesetForm['buffer_value']
 
         const treshValue = tresh.valueAsNumber
-        const buffValue = buff.valueAsNumber
+        // const buffValue = buff.valueAsNumber
+        const buffValue = treshValue * 2;
+        buff.value = buffValue;
         browser.runtime.sendMessage({"type":"updateSettings", "treshold":treshValue, "buffer": buffValue})
     }
 

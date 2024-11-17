@@ -1,7 +1,20 @@
 const handleAuthed = ()=>{
-    document.getElementById("spotify-auth-btn").disabled = true;
+    document.getElementById("spotify-auth-btn").style.display = "none";
+    document.getElementById("spotify-logout-btn").style.display = "inline-block";
+    document.getElementById("spotify-logout-btn").addEventListener('click', async () => {
+        await browser.runtime.sendMessage({"type":"spotify", "command":"logout"})
+        window.location.reload()
+    })
+
+    document.getElementById("spotify-uri-play").addEventListener('click', async () => {
+        browser.runtime.sendMessage({"type":"spotify", "command":"play"})
+    })
+
     document.getElementById("spotify-auth-resp").textContent = "you are authed!";
+    /** @type {HTMLSelectElement} */
     let deviceSelect = document.getElementById("device-select");
+    /** @type {HTMLSelectElement} */
+    let searchSelect = document.getElementById("search-select");
     
     browser.runtime.sendMessage({"type":"spotify", "command":"dispatch", "method":"GET", "endpoint":"v1/me/player/devices"}).then( async (v)=>{
         console.log(v)
@@ -48,6 +61,36 @@ const handleAuthed = ()=>{
             }
         })
     })
+
+    browser.runtime.sendMessage({"type":"spotify", "command":"dispatch", "method":"GET", "endpoint":"v1/me/top/artists?limit=6&offset=0"}).then( async (v)=>{
+        console.log(v)
+        /**@type {{'images': {'url':string}[], 'name':string, 'uri': string}[]} */
+        let items = v.items;
+        // images[-1].url
+        // name
+        // uri
+        let default_device;
+        let storaged = await browser.storage.local.get('selected_uri');
+   
+        items.forEach(item => {
+            const option = document.createElement("option");
+            option.value = item.uri;
+            option.text = item.name;
+            searchSelect.add(option);
+        });
+        searchSelect.disabled = false;
+        searchSelect.addEventListener('input', (ev)=>{
+            const id = ev.target.value
+            console.log(id)
+            const dev = items.filter(v => v.uri = id)[0]
+            if(dev){
+                browser.storage.local.set({'selected_uri': dev.uri})
+            }
+            document.getElementById('spotify-uri').value = dev.uri;
+        })
+    })
+
+    
     let default_device; //first check local storage (name/id match)
     // next, select  active one
     // otherwise the first one
@@ -63,18 +106,19 @@ const handleAuthed = ()=>{
 }
 
 window.addEventListener('load', async ()=>{
+    if(document.readyState !== 'complete') return;
     const isAuthed = await browser.runtime.sendMessage({"type":"spotify", "command":"isAuthed"});
     console.log(isAuthed)
     const isClientSetup = await browser.runtime.sendMessage({"type":"spotify", "command":"isClientSetup"});
     console.log(`isClientSetup ${isClientSetup}`)
 
-    browser.storage.local.get(['client_id', 'regex', 'spotify_uri']).then(v=>{
+    browser.storage.local.get(['client_id', 'regex', 'selected_uri']).then(v=>{
         if(v.client_id)
             document.getElementById('spotify-client-id').value = v.client_id;
         if(v.regex)
             document.getElementById('url-regex').value = v.regex
-        if(v.spotify_uri)
-            document.getElementById('spotify-uri').value = v.spotify_uri
+        if(v.selected_uri)
+            document.getElementById('spotify-uri').value = v.selected_uri
 
     })
     document.getElementById('url-regex-apply').addEventListener('click', ()=>{
@@ -83,8 +127,10 @@ window.addEventListener('load', async ()=>{
     })
     document.getElementById('spotify-uri-apply').addEventListener('click', ()=>{
         const value = document.getElementById('spotify-uri').value;
-        browser.runtime.sendMessage({"type":"set", "spotify_uri": value});
+        browser.runtime.sendMessage({"type":"set", "selected_uri": value});
     })
+
+    document.getElementById("spotify-logout-btn").style.display = "none";
 
     if(isAuthed){
         handleAuthed();
@@ -93,14 +139,10 @@ window.addEventListener('load', async ()=>{
 
     if(!isClientSetup){
         /** @type{HTMLDivElement} */
-        let div = document.getElementById("spotify-auth");
-        div.style.display = "none";
+        document.getElementById("spotify-auth").style.display = "none";
     }
 
-    document.getElementById("spotify-auth-btn").disabled = false;
-
-
-    document.getElementById("spotify-auth-btn").disabled = false;
+    document.getElementById("spotify-auth-btn").style.display = "inline-block";;
     document.getElementById("spotify-auth-resp").textContent = "you are NOT authed";
     document.getElementById("spotify-auth-btn").addEventListener('click', async ()=>{
         const result = await browser.runtime.sendMessage({"type":"spotify", "command":"authorize"});

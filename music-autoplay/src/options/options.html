@@ -39,18 +39,20 @@
                 <td>
                     <input type="text" name="spotify-client-id" id="spotify-client-id">
                 </td>
+                <td>
+                    <button id="spotify-client-setup">Setup Client</button>
+                </td>
             </tr>
         </table>
-
-        <button id="spotify-client-setup">Setup Client</button>
         </div>
 
         <!-- display this only when client is correct -->
         <div id="spotify-auth">
-            <button id="spotify-auth-btn" disabled>Auth</button>
+            <button id="spotify-auth-btn">Auth</button>
+            <button id="spotify-logout-btn">Logout</button>
             <div id="spotify-auth-resp">you are ???</div>
             <label for="device-select">Target device: </label>
-            <select name="device-select" id="device-select" disabled>
+            <select name="device-select" id="device-select" disabled ></select>
         </div>
 
         </select>
@@ -64,17 +66,11 @@
         <header>
 
             Ruleset</header>
-        <label for="ruleset-storage">Synchonization type:</label>
-        <select name="ruleset-storage" id="ruleset-storage" disabled>
-            <option value="local" selected>local</option>
-            <option value="sync">synchonized</option>
-        </select>
-
             <!-- just copy the vimium option page, but add adaptive white/dark mode -->
         <form id="rulesetForm">
 
             After 
-            <input data-setting type="number" style="width: 4ch; text-align: center;" max="800" name="treshold_value" id="treshold_value" value="15">
+            <input data-setting type="number" style="width: 4ch; text-align: center;" max="800" name="treshold_value" id="treshold_value" value="60">
             <select data-setting name="treshold_unit" id="treshold_unit" disabled>
                 <option value="seconds" selected>seconds</option>
                 <option value="minutes">minutes</option>
@@ -84,7 +80,7 @@
                 <option value="false">opened</option>
             </select>
             over past
-            <input data-setting type="number" style="width: 5ch; text-align: center;" max="800" name="buffer_value" id="buffer_value" value="15">
+            <input data-setting type="number" style="width: 5ch; text-align: center;" max="800" name="buffer_value" id="buffer_value" value="120" disabled>
             <select data-setting name="buffer_unit" id="buffer_unit" disabled>
                 <option value="seconds" selected>seconds</option>
                 <option value="minutes">minutes</option>
@@ -110,9 +106,13 @@
             <br>
             <br>
             <!-- hrefs -->
-            <label for="spotify-uri">play:</label>
-            <input type="text" name="spotify-uri" id="spotify-uri" style="width: 80%;">
-            <button type="button" id="spotify-uri-apply">apply</button>
+            <label for="search-select">Play Artist: </label>
+            <select name="search-select" id="search-select" disabled>
+            <label for="spotify-uri">Play URI:</label>
+            <input type="text" name="spotify-uri" id="spotify-uri" style="width: 80%;" disabled>
+            <button type="button" id="spotify-uri-apply" disabled>apply</button>
+            <br>
+            <button type="button" id="spotify-uri-play">play</button>
             <br>
             <span>example input</span>
             <ul>
@@ -120,7 +120,6 @@
                 <li>spotify:album:1Ggqhoj6naPW3Vn1Q0kAa1</li>
                 <li>spotify:track:24SUWisv2lYQiB3bVpE1sn</li>
             </ul>
-            <div style="font-size: 1em;">(example - )</div>
             <!-- play one of transition: -->
             <!-- [song/random song from] [id] -->
             <!-- song seletion -->

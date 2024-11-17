@@ -28,7 +28,7 @@ export class Spotify{
     _code_verifier; // private secret
     _code_challenge; // public mac
     required_scope;
-    _scope = 'user-modify-playback-state user-read-playback-state';
+    _scope = 'user-modify-playback-state user-read-playback-state user-top-read';
     _redirectUri;
 
     constructor(){        
@@ -68,6 +68,12 @@ export class Spotify{
         return authUrl.toString();
     }
 
+    logout = () => {
+        browser.storage.local.set({'token': null});
+        this._access_info = null;
+        this._access_token = null;
+    }
+
     authorize = async (code) => {
         //TODO: convert to promise
         const payload = {
@@ -86,6 +92,7 @@ export class Spotify{
 
         const body = await fetch("https://accounts.spotify.com/api/token", payload);
         const response =await body.json();
+        console.log(response)
         if(response && response.access_token){
             this._access_token = response.access_token
             this._access_info = response;
@@ -94,11 +101,38 @@ export class Spotify{
         }
     }
 
+    refreshAuth = async () => {
+        const url = "https://accounts.spotify.com/api/token"
+
+        const payload = {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({
+              grant_type: 'refresh_token',
+              refresh_token: this._access_info.refresh_token,
+              client_id: this._clientId
+            }),
+          }
+        const body = await fetch(url, payload);
+        const response = await body.json();
+        this._access_token = response.accessToken;
+        this._access_info = response;
+        this._access_info.expiration_time = Date.now() + response.expires_in * 1000;
+        browser.storage.local.set({'token': this._access_info})
+    }
+
     /**@returns {boolean} */
     isAuthed = ()=>{
         if(!this._access_info || !this._access_info.access_token) return false;
-        if(Date.now() >= this._access_info.expiration_time) return false;
         return true;
+    }
+
+    /**@returns {boolean} */
+    isExpired = ()=> {
+        if(Date.now() >= this._access_info.expiration_time) return true;
+        return false;
     }
 
     /**@returns {object} */
@@ -111,6 +145,12 @@ export class Spotify{
             body: JSON.stringify(body)
         });
         console.log(res)
-        return await res.json();
+        let result
+        try {
+            result = await res.json()
+        } catch (error) {
+            result = res
+        }
+        return result;
     }
 };

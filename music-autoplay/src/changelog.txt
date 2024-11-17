@@ -1,3 +1,9 @@
+== 17.11.2024 - the quality update
+- added "play artist" selection
+- "rapid fire"
+- ability to logout
+- automatic authorization (if logged out) and token renew
+
 == 14.11.2024 - authorization flow update again
 - added instructions on adding Spotify App
 - use identity API for auth & move auth to backend (it's more secure now)

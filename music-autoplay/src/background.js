@@ -1,7 +1,7 @@
 import {DEFAULT_TIME_BETWEEN_SAMPLES} from "./consts.js"
 import { Spotify } from "./spotify.js";
 
-console.clear()
+// console.clear()
 
 const storage = browser.storage.local;
 async function storageGet(_key, _default){
@@ -9,10 +9,9 @@ async function storageGet(_key, _default){
     return res[_key] || _default
 }
 const timeBetweenSample = await storageGet("timeBetweenSample", DEFAULT_TIME_BETWEEN_SAMPLES);
-var timeBufferSize = await storageGet("timeBufferSize", 40);
-var timeTreshold = await storageGet("timeTreshold", 30);
+var timeBufferSize = await storageGet("timeBufferSize", 120);
+var timeTreshold = await storageGet("timeTreshold", 60);
 var regex = await storageGet("regex", "www\.youtube\.com")
-var spotify_uri = await storageGet("spotify_uri", "spotify:artist:25b7eSZD64Sm8ReHZ1WDc7")
 var client_id = await storageGet("client_id", null)
 
 var buffer = []
@@ -25,7 +24,17 @@ if(client_id){
     await spotify.init(client_id, browser.identity.getRedirectURL());
 }
 
-async function exec(){
+async function isPlaying(){
+    const state = await spotify.dispatch("GET", "v1/me/player");
+    console.log(state)
+    const dev_id = await getSelectedDevice()
+    const playing = state.is_playing;
+    const onRightDevice = dev_id === state.device.id
+
+    return playing && onRightDevice
+}
+
+async function getSelectedDevice(){
     const devices = await browser.storage.local.get(['selected_device', "temp_device"]);
     let dev_id;
     if(devices.selected_device){
@@ -33,8 +42,17 @@ async function exec(){
     } else {
         dev_id = devices.temp_device.id;
     }
+    return dev_id;
+}
+
+async function exec(){
+    if(await isPlaying()) return;
+
+    const selected_uri = await storageGet("selected_uri", "spotify:artist:25b7eSZD64Sm8ReHZ1WDc7")
+    const dev_id = await getSelectedDevice()
+
     spotify.dispatch("PUT", `v1/me/player/play?device_id=${dev_id}`,{
-        context_uri: spotify_uri
+        context_uri: selected_uri
     });
 }
 
@@ -45,28 +63,43 @@ async function sample(value){
     }
     const val = buffer.reduce((p,v) => p+v)*timeBetweenSample
     // console.log(`${val} of ${timeTreshold} in ${timeBufferSize}`)
-    if(val >= timeTreshold && !triggered){
-        triggered = true;
-        exec()
+    if(val >= timeTreshold){
+        buffer = []
+        await exec()
     }
 }
 
 async function heartbeat(){
+    if(!spotify.isAuthed()){
+        if(spotify.isClientSetup()){
+            browser.alarms.clear()
+            await authorizeSpotify()
+        }
+    } else if(spotify.isExpired()) {
+        await spotify.refreshAuth()
+        if(!spotify.isAuthed() || spotify.isExpired()){
+            await authorizeSpotify()
+        }
+    }
+
     const focused = await browser.windows.getCurrent();
     const tabs = await browser.tabs.query({active: true, currentWindow: true})
 
     if(focused.focused && tabs && tabs.length > 0){
         const url = tabs[0].url;
         if(url.match(regex)){
-            sample(1)
+            await sample(1)
         } else {
-            sample(0)
+            await sample(0)
         }
     } else {
-        sample(0)
+        await sample(0)
     }
-
-    const val = buffer.reduce((p,v) => p+v)*timeBetweenSample
+    
+    let val = 0
+    if(buffer.length > 0)
+        val = buffer.reduce((p,v) => p+v)*timeBetweenSample
+    console.log(`hearbeat: ${val} of ${timeTreshold}`)
     browser.runtime.sendMessage({"type":"heartbeat", "value":val, "threshold":timeTreshold, "bufferSize": bufferMaxSize*timeBetweenSample})
 }
 
@@ -75,11 +108,9 @@ function createAlarm(){
     browser.alarms.create("heartbeat", {when: when})
 }
 
-
-
-browser.alarms.onAlarm.addListener((e)=> {
+browser.alarms.onAlarm.addListener(async (e)=> {
     if(e.name === "heartbeat"){
-        heartbeat()
+        await heartbeat()
         createAlarm()
     }
 })
@@ -102,9 +133,9 @@ function updateSettings2(message){
         regex = message.regex;
         browser.storage.local.set({'regex': message.regex});
     }
-    if(message.spotify_uri){
-        spotify_uri = message.spotify_uri;
-        browser.storage.local.set({'spotify_uri': message.spotify_uri});
+    if(message.selected_uri){
+        selected_uri = message.selected_uri;
+        browser.storage.local.set({'selected_uri': message.selected_uri});
     }
 }
 
@@ -125,16 +156,12 @@ function dispatchSpotify (message){
             return Promise.resolve("done");
         break;
         case 'authorize':
-            return browser.identity.launchWebAuthFlow({
-                url: spotify.getAuthURL(),
-                interactive: true
-            }).then(async (redirectUri)=>{
-                let m = redirectUri.match(/[#?](.*)/);
-                let params = new URLSearchParams(m[1].split("#")[0]);
-                let code = params.get("code");
-                return await spotify.authorize(code)
-            });
+            return authorizeSpotify()
         break;
+        case 'logout':
+            spotify.logout();
+            return Promise.resolve(spotify.isAuthed());
+            break;
         case 'isAuthed':
             return Promise.resolve(spotify.isAuthed());
         break;
@@ -143,9 +170,24 @@ function dispatchSpotify (message){
         break;
         case 'dispatch':
             return Promise.resolve(spotify.dispatch(message['method'], message['endpoint'], message['body']))
+        case 'play':
+            exec()
+            return Promise.resolve()
         break;
     }
     return false
+}
+
+function authorizeSpotify(){
+    return browser.identity.launchWebAuthFlow({
+        url: spotify.getAuthURL(),
+        interactive: true
+    }).then(async (redirectUri)=>{
+        let m = redirectUri.match(/[#?](.*)/);
+        let params = new URLSearchParams(m[1].split("#")[0]);
+        let code = params.get("code");
+        return await spotify.authorize(code)
+    });
 }
 
 function notify(message, sender) {
